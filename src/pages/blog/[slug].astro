@@ -1,0 +1,47 @@
+---
+import type { GetStaticPaths } from "astro";
+import { getCollection, type CollectionEntry } from "astro:content";
+import H1 from "../../components/H1.astro";
+import Main from "../../components/Main.astro";
+import Layout from "../../layouts/Layout.astro";
+import { Image } from "astro:assets";
+
+export const getStaticPaths = (async () => {
+  const posts = await getCollection("posts");
+  const paths = posts.map((post: any) => {
+    return {
+      params: {
+        slug: post.slug,
+      },
+      props: {
+        post,
+      },
+    };
+  });
+  return paths;
+}) satisfies GetStaticPaths;
+
+type Props = {
+  post: CollectionEntry<"posts">;
+};
+
+const { post } = Astro.props;
+const { Content } = await post.render();
+---
+
+<Layout title={post.data.title}>
+  <Main>
+    <H1 text={post.data.title} />
+    <Image
+      src={post.data.image}
+      alt={post.data.title}
+      width={1024}
+      height={1024 / 1.5}
+      format="webp"
+      class="rounded-2xl shadow-xl mb-6 aspect-thumbnail object-cover"
+    />
+    <div class="prose prose-2xl overflow-visible relative mb-20">
+        <Content />
+    </div>
+  </Main>
+</Layout>
